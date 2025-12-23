@@ -22,7 +22,9 @@ The script requires a Linear API key. You can provide it in two ways:
    ```bash
    export LINEAR_API_KEY=your_api_key_here
    ```
-2. **File**:
+2. **~/.linear-qa-randomizer.json**
+   The script will prompt you to paste your API key if it's run without an API key and save it here.
+3. **File**:
    Create an `apikey.txt` file in the project root containing only your API key.
 
 You can obtain a key on Linear by going to Settings > Security and Access > Create new API key.

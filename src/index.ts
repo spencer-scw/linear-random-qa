@@ -36,7 +36,7 @@ async function getApiKey(): Promise<string | null> {
     type: "password",
     name: "apiKey",
     message:
-      "Please enter your Linear API Key (it will be saved (readable by you only) to ~/.linear-qa-randomizer.json):",
+      "Please enter your Linear API Key.\nYou can get your API key in linear by going to Settings > Security and Access > Create new API key. It only needs read permissions.\nIt will be saved with locked permissions (read-only for you only) to ~/.linear-qa-randomizer.json.\n",
     validate: (value) => (value.length < 10 ? "API Key seems too short" : true),
   });
 
