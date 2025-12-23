@@ -42,7 +42,7 @@ npm start
 You can install the tool globally to use it from anywhere:
 ```bash
 npm install -g .
-linear-qa-random
+linear-qa-randomizer
 ```
 
 ## How it works
