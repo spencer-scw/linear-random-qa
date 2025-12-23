@@ -25,6 +25,10 @@ The script requires a Linear API key. You can provide it in two ways:
 2. **File**:
    Create an `apikey.txt` file in the project root containing only your API key.
 
+You can obtain a key on Linear by going to Settings > Security and Access > Create new API key.
+
+It only needs read access to run this application.
+
 ## Usage
 
 Run the script using:

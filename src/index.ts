@@ -1,38 +1,84 @@
 #!/usr/bin/env node
 import { LinearClient } from "@linear/sdk";
-import { readFileSync, existsSync } from "fs";
+import { readFileSync, writeFileSync, existsSync } from "fs";
 import { join } from "path";
-import { fileURLToPath } from "url";
-import { dirname } from "path";
+import { homedir } from "os";
+import prompts from "prompts";
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
+async function getApiKey(): Promise<string | null> {
+  // 1. Check Environment Variable
+  if (process.env.LINEAR_API_KEY) {
+    return process.env.LINEAR_API_KEY;
+  }
+
+  // 2. Check Local File (Legacy/Simple)
+  const localKeyPath = join(process.cwd(), "apikey.txt");
+  if (existsSync(localKeyPath)) {
+    return readFileSync(localKeyPath, "utf-8").trim();
+  }
+
+  // 3. Check User Config in Home Directory
+  const configPath = join(homedir(), ".linear-qa-randomizer.json");
+  if (existsSync(configPath)) {
+    try {
+      const config = JSON.parse(readFileSync(configPath, "utf-8"));
+      if (config.apiKey) {
+        return config.apiKey;
+      }
+    } catch (e) {
+      // Ignore invalid config, will prompt
+    }
+  }
+
+  // 4. Prompt User
+  console.log("Linear API Key not found.");
+  const response = await prompts({
+    type: "password",
+    name: "apiKey",
+    message:
+      "Please enter your Linear API Key (it will be saved (readable by you only) to ~/.linear-qa-randomizer.json):",
+    validate: (value) => (value.length < 10 ? "API Key seems too short" : true),
+  });
+
+  if (response.apiKey) {
+    const config = { apiKey: response.apiKey };
+    try {
+      writeFileSync(configPath, JSON.stringify(config, null, 2), {
+        mode: 0o600,
+      }); // Secure permissions
+      console.log(`API Key saved to ${configPath}`);
+      return response.apiKey;
+    } catch (e) {
+      console.error("Failed to save config file:", e);
+      return response.apiKey; // Return it anyway for this session
+    }
+  }
+
+  return null;
+}
 
 async function main() {
-  const apiKeyPath = join(process.cwd(), "apikey.txt");
-  let apiKey = process.env.LINEAR_API_KEY;
-
-  if (!apiKey && existsSync(apiKeyPath)) {
-    apiKey = readFileSync(apiKeyPath, "utf-8").trim();
-  }
-
-  if (!apiKey) {
-    console.error(
-      "Error: API key not found. Please provide it via LINEAR_API_KEY environment variable or apikey.txt in the current directory.",
-    );
-    process.exit(1);
-  }
-
-  const linearClient = new LinearClient({ apiKey });
-
   try {
+    const apiKey = await getApiKey();
+
+    if (!apiKey) {
+      console.error("Error: API Key is required to run this script.");
+      process.exit(1);
+    }
+
+    const linearClient = new LinearClient({ apiKey });
+
+    // 1. Find the "Pending QA Issues" view
     let allCustomViews: any[] = [];
     let hasNextPage = true;
     let after: string | undefined = undefined;
 
+    // Use a simpler query or handle pagination carefully.
+    // Fetching ALL views might be slow if there are thousands, but usually okay for CLI.
     while (hasNextPage) {
       const customViewsResponse = await linearClient.customViews({
         after,
-        first: 100,
+        first: 50, // Fetch 50 at a time
       });
       allCustomViews = allCustomViews.concat(customViewsResponse.nodes);
       hasNextPage = customViewsResponse.pageInfo.hasNextPage;
@@ -56,6 +102,7 @@ async function main() {
       process.exit(1);
     }
 
+    // 2. Fetch issues from that view
     const viewIssues = await pendingQaView.issues();
 
     if (viewIssues.nodes.length === 0) {
@@ -68,6 +115,7 @@ async function main() {
 
     console.log(`Random Pending QA Issue: ${randomIssue.url}`);
   } catch (error) {
+    // Handle specific Linear errors if needed
     console.error("An error occurred:", error);
     process.exit(1);
   }
