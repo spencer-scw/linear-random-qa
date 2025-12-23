@@ -5,7 +5,7 @@
   "type": "module",
   "main": "dist/index.js",
   "bin": {
-    "linear-qa-random": "./dist/index.js"
+    "linear-qa-randomizer": "./dist/index.js"
   },
   "files": [
     "dist"
