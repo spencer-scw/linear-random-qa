@@ -1,6 +1,6 @@
 {
   "name": "linear-qa-randomizer",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Randomly selects an issue from Linear's Pending QA Issues view",
   "type": "module",
   "main": "dist/index.js",
