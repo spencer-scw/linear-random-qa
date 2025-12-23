@@ -4,6 +4,7 @@ import { readFileSync, writeFileSync, existsSync } from "fs";
 import { join } from "path";
 import { homedir } from "os";
 import prompts from "prompts";
+import open from "open";
 
 async function getApiKey(): Promise<string | null> {
   // 1. Check Environment Variable
@@ -111,10 +112,12 @@ async function main() {
     }
 
     const randomIndex = Math.floor(Math.random() * viewIssues.nodes.length);
-    const randomIssue = viewIssues.nodes[randomIndex];
-
-    console.log(`Random Pending QA Issue: ${randomIssue.url}`);
-  } catch (error) {
+        const randomIssue = viewIssues.nodes[randomIndex];
+    
+        console.log(`Random Pending QA Issue: ${randomIssue.url}`);
+        await open(randomIssue.url);
+    
+      } catch (error) {
     // Handle specific Linear errors if needed
     console.error("An error occurred:", error);
     process.exit(1);

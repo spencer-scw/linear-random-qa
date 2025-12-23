@@ -49,4 +49,5 @@ linear-qa-randomizer
 - The script connects to the Linear API.
 - It searches for a custom view named **"Pending QA Issues"** (case-insensitive).
 - It pulls all issues from that view and prints a link to one chosen at random.
+- **It automatically opens the link in your default browser.**
 - If the view is not found, it lists available views to help you debug.

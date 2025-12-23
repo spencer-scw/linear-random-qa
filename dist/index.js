@@ -4,6 +4,7 @@ import { readFileSync, writeFileSync, existsSync } from "fs";
 import { join } from "path";
 import { homedir } from "os";
 import prompts from "prompts";
+import open from "open";
 async function getApiKey() {
     // 1. Check Environment Variable
     if (process.env.LINEAR_API_KEY) {
@@ -97,6 +98,7 @@ async function main() {
         const randomIndex = Math.floor(Math.random() * viewIssues.nodes.length);
         const randomIssue = viewIssues.nodes[randomIndex];
         console.log(`Random Pending QA Issue: ${randomIssue.url}`);
+        await open(randomIssue.url);
     }
     catch (error) {
         // Handle specific Linear errors if needed
